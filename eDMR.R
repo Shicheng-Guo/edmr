@@ -20,6 +20,7 @@ dist_to_mixmdl <- function(dist)
   mixmdl=normalmixEM(log2.distance)
 }
 
+# get the optimized parameter dist value from mixmdl object
 get.break_point=function(mixmdl){
   if(mixmdl$lambda[1]> mixmdl$lambda[2]) {i=1;k=2}
   else {i=2; k=1}
@@ -37,6 +38,7 @@ get.break_point=function(mixmdl){
   break_point
 }
 
+# plot the fitted bimodal normal distribution for CpGs distances distribution
 plotMdl1=function(mixmdl, subtitle="", cex.sub=1,...){
   xlim=c(0,ceiling(max(mixmdl$x)))
   if(mixmdl$lambda[1] < mixmdl$lambda[2]) { 
