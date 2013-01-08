@@ -269,7 +269,20 @@ myDiffToDMR=function(myDiff, dist=100, step=100, DMC.qvalue=0.01, DMC.methdiff=2
 }
 # main eDMR function
 # myDiff 
-eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20, granges=TRUE, plot=FALSE, main=""){
+eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20, granges=TRUE, plot=FALSE, main="", direction="both"){
+  if(direction=="both"){
+    print("DMR analysis for all detected CpGs...")
+  } else if (direction=="hyper") {
+    print("DMR analysis for hyper methylated CpGs...")
+    idx=which(myDiff$meth.diff>0)
+    myDiff=myDiff[idx,]
+  } else if (direction=="hypo") {
+    print("DMR analysis for hypo methylated CpGs...")
+    idx=which(myDiff$meth.diff<0)
+    myDiff=myDiff[idx,]
+  } else {
+    print ("parameter direction has too be both, hyper or hyper")
+  }
   if(dist=="none"){
     mixmdl=myDiff.to.mixmdl(myDiff, plot=plot, main=main)
     dist=get.dist.cutoff(mixmdl)    
