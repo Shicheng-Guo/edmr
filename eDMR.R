@@ -271,7 +271,7 @@ myDiffToDMR=function(myDiff, dist=100, step=100, DMC.qvalue=0.01, DMC.methdiff=2
 # myDiff 
 eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20, granges=TRUE, plot=FALSE, main=""){
   if(dist=="none"){
-    mixmdl=myDiff.to.mixmdl(chr22.myDiff, plot=plot, main=main)
+    mixmdl=myDiff.to.mixmdl(myDiff, plot=plot, main=main)
     dist=get.dist.cutoff(mixmdl)    
   }
   DMR=myDiffToDMR(myDiff, dist=dist, step=step, DMC.qvalue=DMC.qvalue, DMC.methdiff=DMC.methdiff, num.DMCs=num.DMCs, num.CpGs=num.CpGs, DMR.methdiff=DMR.methdiff)
@@ -285,13 +285,14 @@ eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, n
 }
 
 # significant DMRs
-filter.DMR=function(myDMR, DMR.qvalue=0.05, mean.meth.diff=20){
+filter.dmr=function(myDMR, DMR.qvalue=0.05, mean.meth.diff=20, num.CpGs=3, num.DMCs=1){
   x=myDMR; 
   if(class(x)=="GRanges"){
-    idx=which(values(myDMR)[,"DMR.qvalue"]<=DMR.qvalue & abs(values(myDMR)[,"mean.meth.diff"])>=mean.meth.diff)
+    idx=which(values(myDMR)[,"DMR.qvalue"]<=DMR.qvalue & abs(values(myDMR)[,"mean.meth.diff"])>=mean.meth.diff & num.CpGs>=num.CpGs & num.DMCs >=num.DMCs)
     return(x[idx])
   } else if(x=="data.frame"){
-    idx=which(myDMR$DMR.qvalue<=DMR.qvalue & abs(myDMR$mean.meth.diff) >= mean.meth.diff)  }
+    idx=which(myDMR$DMR.qvalue<=DMR.qvalue & abs(myDMR$mean.meth.diff) >= mean.meth.diff & num.CpGs>=num.CpGs & num.DMCs >=num.DMCs)  
+  }
     return(x[idx,])
 }
 # annotation functions
@@ -303,8 +304,8 @@ splitn=function (strings, field, n)
 ## generate genebody GRangesList object
 genebody.anno=function(file){
   print(paste("load", file))
-  genes.obj=fast.read(file,header=F)
-  colnames(genes.obj)=c("chr","start","end","id","score","strand","gene.symbol","gene.id")
+  genes.obj=fast.read(file,header=F, sep="\t")
+  colnames(genes.obj)=c("chr","start","end","id","score","strand","gene.id","gene.symbol")
   subj <- with(genes.obj, GRanges(chr, IRanges(start, end), id=id, gene.symbol=gene.symbol,gene.id=gene.id))
   types=unique(splitn(genes.obj$id,"_",3))
   types=c("up|utr5","utr5","cds","intron","utr3")
@@ -319,7 +320,7 @@ genebody.anno=function(file){
 
 ## generate cpgi GRangesList object
 cpgi.anno=function(file, shore.width=2000){
-  ft=fast.read(file, header=F)
+  ft=fast.read(file, header=F, sep="\t")
   cpgi.gr= with(ft, GRanges(ft[,1], IRanges(ft[,2], ft[,3])))
   up.shores.gr=flank(cpgi.gr, width=shore.width, start=T,both=F)
   dn.shores.gr=flank(cpgi.gr, width=shore.width, start=F,both=F)
@@ -336,4 +337,10 @@ plot.dmr.distr=function(myDMR, subject, ...){
   names(res0)[length(res0)]="un-anno"
   print(res0)
   barplot(res0, col=col.list[1:length(res0)], las=2, ...)  
+}
+
+# get gene list based the genebody granges
+get.dmr.genes=function(myDMR, subject, id.type="gene.symbol"){
+  ind=findOverlaps(subject,filter.DMR(myDMR))
+  unique(values(subject)[unique(ind@queryHits), id.type])
 }
