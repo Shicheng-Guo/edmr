@@ -269,7 +269,7 @@ myDiffToDMR=function(myDiff, dist=100, step=100, DMC.qvalue=0.01, DMC.methdiff=2
 }
 # main eDMR function
 # myDiff 
-eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20, granges=TRUE, plot=FALSE, main="", direction="both"){
+eDMR.sub=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20, granges=TRUE, plot=FALSE, main="", direction="both"){
   if(direction=="both"){
     print("DMR analysis for all detected CpGs...")
   } else if (direction=="hyper") {
@@ -297,11 +297,26 @@ eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, n
   }
 }
 
+eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20, plot=FALSE, main="", mode=1){
+  if(mode==1){
+    myDMR=eDMR.sub(myDiff, step=step, dist=dist, DMC.qvalue=DMC.qvalue, DMC.methdiff=DMC.methdiff, num.DMCs=num.DMCs, num.CpGs=num.CpGs, 
+                   DMR.methdiff=DMR.methdiff, granges=TRUE, plot=plot, main=main, direction="both")
+  } else if (mode==2){
+    hyper.myDMR=eDMR.sub(myDiff, step=step, dist=dist, DMC.qvalue=DMC.qvalue, DMC.methdiff=DMC.methdiff, num.DMCs=num.DMCs, num.CpGs=num.CpGs,
+                         DMR.methdiff=DMR.methdiff, granges=TRUE, plot=plot, main=main, direction="hyper")
+    hypo.myDMR=eDMR.sub(myDiff, step=step, dist=dist, DMC.qvalue=DMC.qvalue, DMC.methdiff=DMC.methdiff, num.DMCs=num.DMCs, num.CpGs=num.CpGs,
+                         DMR.methdiff=DMR.methdiff, granges=TRUE, plot=plot, main=main, direction="hypo")
+    myDMR=c(hyper.myDMR, hypo.myDMR)
+  }
+  else {
+    stop ("mode = 1 or 2")
+  }
+}
 # significant DMRs
 filter.dmr=function(myDMR, DMR.qvalue=0.05, mean.meth.diff=20, num.CpGs=3, num.DMCs=1){
   x=myDMR; 
   if(class(x)=="GRanges"){
-    idx=which(values(myDMR)[,"DMR.qvalue"]<=DMR.qvalue & abs(values(myDMR)[,"mean.meth.diff"])>=mean.meth.diff & num.CpGs>=num.CpGs & num.DMCs >=num.DMCs)
+    idx=which(values(myDMR)[,"DMR.qvalue"]<=DMR.qvalue & abs(values(myDMR)[,"mean.meth.diff"])>=mean.meth.diff & values(myDMR)[,"num.CpGs"]>=num.CpGs & values(myDMR)[,"num.DMCs"] >=num.DMCs)
     return(x[idx])
   } else if(x=="data.frame"){
     idx=which(myDMR$DMR.qvalue<=DMR.qvalue & abs(myDMR$mean.meth.diff) >= mean.meth.diff & num.CpGs>=num.CpGs & num.DMCs >=num.DMCs)  
@@ -354,6 +369,6 @@ plot.dmr.distr=function(myDMR, subject, ...){
 
 # get gene list based the genebody granges
 get.dmr.genes=function(myDMR, subject, id.type="gene.symbol"){
-  ind=findOverlaps(subject,filter.DMR(myDMR))
+  ind=findOverlaps(subject,myDMR)
   unique(values(subject)[unique(ind@queryHits), id.type])
 }
