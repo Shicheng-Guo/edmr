@@ -110,12 +110,12 @@ count.sigDMR.list=function(sigDMR.list, main="DMR count"){
   library(doMC, quietly=T)
   library(ggplot2, quietly=T)
   dat=foreach(i = 1:length(sigDMR.list), .combine=rbind) %do%  {
-    x=sigDMR.list[[i]]; 
-    count=c(length(which(x$mean.meth.diff>0)), length(which(x$mean.meth.diff<0))); 
+    x=sigDMR.list[[i]]
+    count=c(length(which(values(x)[,"mean.meth.diff"]>0)), length(which(values(x)[,"mean.meth.diff"]<0))); 
     type=c("hyper","hypo"); 
     data.frame(sample=names(sigDMR.list)[i], type=type, count=count)
   }
-  ggplot(dat, aes(y=count,x=sample,fill=type)) + geom_bar(stat="identity") + ggtitle(main) + gb.theme()
+  ggplot(dat, aes(y=count,x=sample,fill=type)) + geom_bar(stat="identity", position ="dodge") + ggtitle(main) + gb.theme()
 }
 length.sigDMR.list=function(sigDMR.list, main="DMR length", ...){
   dat=foreach(i = 1: length(sigDMR.list),.combine=rbind) %do% {x=(sigDMR.list[[i]]); data.frame(sample=names(sigDMR.list)[i], length=as.integer(x$end)-as.integer(x$start))}
@@ -376,4 +376,11 @@ plot.dmr.distr=function(myDMR, subject, ...){
 get.dmr.genes=function(myDMR, subject, id.type="gene.symbol"){
   ind=findOverlaps(subject,myDMR)
   unique(values(subject)[unique(ind@queryHits), id.type])
+}
+
+get.hyper.dmr=function(myDMR){
+  myDMR[which(values(myDMR)[,"mean.meth.diff"]>0)]
+}
+get.hypo.dmr=function(myDMR){
+  myDMR[which(values(myDMR)[,"mean.meth.diff"]<0)]
 }
