@@ -323,6 +323,11 @@ filter.dmr=function(myDMR, DMR.qvalue=0.05, mean.meth.diff=20, num.CpGs=3, num.D
   }
     return(x[idx,])
 }
+
+# DMR statistics
+plot.dmr.width=function(myDMR, main="", ...){
+  hist(width(myDMR), main=main, xlab="DMR width", col="#4DAF4A", ...)
+}
 # annotation functions
 splitn=function (strings, field, n)
 {
