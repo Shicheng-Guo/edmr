@@ -384,3 +384,34 @@ get.hyper.dmr=function(myDMR){
 get.hypo.dmr=function(myDMR){
   myDMR[which(values(myDMR)[,"mean.meth.diff"]<0)]
 }
+
+dmr.to.bedgraph=function(myDMR,file.name,col.name="mean.meth.diff",log.transform=F,negative=F,add.on=""){
+  if(! col.name %in% c('DMR.pvalue','DMR.qvalue', 'mean.meth.diff') )
+  {
+    stop("col.name argument is not one of 'DMR.pvalue','DMR.qvalue', 'mean.meth.diff'")
+  }
+  x=myDMR
+  df=data.frame(chr=as.character(seqnames(x)),
+                start=as.integer(start(x)),
+                end=as.integer(end(x)) )
+  df=cbind(df, score=values(x)[,col.name] )
+  if(log.transform){
+    df[,4]=log10(df[,4])
+  }
+  if(negative){
+    df[,4]=-1*(df[,4])
+  }
+  
+  if(is.null(file.name)){
+    return(df)
+  }else{
+    track.line=paste(
+      "track type=bedGraph name='",file.name,"' description='",col.name,
+      "' visibility=full color=255,0,255 altColor=102,205,170 maxHeightPixels=80:80:11 ",add.on,sep="")
+    
+    cat(track.line,"\n",file=file.name)
+    write.table(df,file=file.name,quote=FALSE,col.names=FALSE,row.names=FALSE,sep="\t",append=TRUE)
+  }
+  
+}
+
