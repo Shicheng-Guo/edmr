@@ -122,6 +122,18 @@ length.sigDMR.list=function(sigDMR.list, main="DMR length", ...){
   boxplot(length ~ sample, data=dat, main=main, ylab="bases",xlab="sample", ...)
 }
 
+width.dmr.list=function(sigDMR.list, main="DMR median width"){
+  library(doMC, quietly=T)
+  library(ggplot2, quietly=T)
+  dat=foreach(i = 1:length(sigDMR.list), .combine=rbind) %do%  {
+    x=sigDMR.list[[i]]
+    count=c(median(width(x[which(values(x)[,"mean.meth.diff"]>0)])), median(width(x[which(values(x)[,"mean.meth.diff"]<0)]))); 
+    type=c("hyper","hypo"); 
+    data.frame(sample=names(sigDMR.list)[i], type=type, count=count)
+  }
+  ggplot(dat, aes(y=count,x=sample,fill=type)) + geom_bar(stat="identity", position ="dodge") + ggtitle(main) + gb.theme()
+}
+
 genebody.sigDMR.list=function(files, ids, main="DMR gene body distribution"){
   library(doMC, quietly=T)
   library(ggplot2, quietly=T)
