@@ -106,7 +106,7 @@ gb.theme= function(){
         axis.title.y=element_text(size=20),
         text=element_text(size=20, colour="brown"))
 } 
-count.sigDMR.list=function(sigDMR.list, main="DMR count"){
+count.dmr.list=function(sigDMR.list, main="DMR count"){
   library(doMC, quietly=T)
   library(ggplot2, quietly=T)
   dat=foreach(i = 1:length(sigDMR.list), .combine=rbind) %do%  {
