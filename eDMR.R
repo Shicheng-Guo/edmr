@@ -1,3 +1,10 @@
+library(GenomicRanges, quietly=T)
+library(methylKit, quietly=T)
+library(data.table, quietly=T)
+library(doMC, quietly=T)
+library(ggplot2, quietly=T)
+library(mixtools, quietly=T)
+
 fast.read <- function(filename, header=TRUE, nrow=5, ...){
   top5=read.table(filename, header=header, stringsAsFactors=FALSE,nrow=nrow,...)
   return(read.table(filename, header=header, stringsAsFactors=FALSE,colClasses=sapply(top5, class), ...))
