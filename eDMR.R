@@ -101,12 +101,12 @@ DMR.to.bedfile=function(DMR, bedfile){
   write.table(DMR, file=bedfile,row.names=F, col.names=F, quote=F, sep="\t", append=F)
 }
 
-gb.theme= function(){
+gb.theme= function(x.col="grey"){
   library(ggplot2, quietly=TRUE)
   theme(panel.background = element_rect(fill = "white",colour = "white"), 
         plot.background = element_rect(fill = "white",colour = "white"), 
         legend.position="top", 
-        axis.text.x=element_text(angle=-90, size=16),
+        axis.text.x=element_text(angle=-90, size=16, colour=x.col),
         axis.text.y=element_text(size=16),
         strip.text.y=element_text(size=16, colour="blue"),
         axis.title.x=element_text(size=20),
