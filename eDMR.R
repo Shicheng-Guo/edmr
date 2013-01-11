@@ -348,6 +348,7 @@ splitn=function (strings, field, n)
 
 ## generate genebody GRangesList object
 genebody.anno=function(file){
+  library(doMC, quietly=T)
   print(paste("load", file))
   genes.obj=fast.read(file,header=F, sep="\t")
   colnames(genes.obj)=c("chr","start","end","id","score","strand","gene.id","gene.symbol")
