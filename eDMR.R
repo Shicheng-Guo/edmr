@@ -275,7 +275,7 @@ getDMR=function(peaks, allMyDiff, pcutoff=0.1,step=100, DMC.qvalue=0.01, DMC.met
 myDiffToDMR=function(myDiff, dist=100, step=100, DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20){
   library(methylKit, quietly =TRUE)
   if (class(myDiff)=="methylDiff") input=getData(myDiff)
-  else if(class(chr22.data)=="data.frame") input=myDiff
+  else if(class(myDiff)=="data.frame") input=myDiff
   else print("Input object myDiff has too be methylDiff class from methylKit or data.frame class")
   
   # prepare myDiff for DMR calling
